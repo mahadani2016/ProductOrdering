@@ -1,0 +1,117 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>func tests</title>
+<link rel="stylesheet" href="../css/mocha.css" />
+</head>
+<body>
+	<iframe id="productframe"></iframe>
+	<div id="mocha"></div>
+
+	<script src="../lib/jquery.js" type="application/javascript"></script>
+	<script src="../lib/zhain.js" type="application/javascript"></script>
+	<script src="../lib/mocha.js" type="text/javascript"></script>
+	<script src="../lib/chai.js" type="text/javascript"></script>
+	<script src="../lib/test-extensions.js" type="text/javascript"></script>
+	<script>mocha.setup('bdd')</script>
+
+	<script type="text/javascript">
+
+function loadProductFrame(done) {
+    $('#productframe').one('load', function(){ done(); }).attr('src', '/index.html');
+}
+
+
+function atLeastOneProductIsLoaded() {
+	return $('#productframe').contents().find("div[class=item]").length >= 1;
+}
+
+function nokiaLumia1020BlueIsLoaded() {
+   var selectedProduct=$('#productframe').contents().find("output[class=idClass]");
+   var selected=false;
+   
+   for (var i = 0; i < selectedProduct.length; i++) 
+	if(selectedProduct[i].value=="f3DFS234#212dfS")
+		selected=true;
+	return selected;
+
+}
+
+function samsungGalaxy4IsLoaded() {
+	   var selectedProduct=$('#productframe').contents().find("output[class=idClass]");
+	   var selected=false;
+	   
+	   for (var i = 0; i < selectedProduct.length; i++) 
+		if(selectedProduct[i].value=="s345664lkdLDSDf")
+			selected=true;
+		return selected;
+
+	}
+	
+function motorolaMotoGIsIsLoaded() {
+	   var selectedProduct=$('#productframe').contents().find("output[class=idClass]");
+	   var selected=false;
+	   
+	   for (var i = 0; i < selectedProduct.length; i++) 
+		if(selectedProduct[i].value=="f873odrkDFfgr")
+			selected=true;
+		return selected;
+
+	}
+	
+function nokiaLumia1020WhiteIsIsLoaded() {
+	   var selectedProduct=$('#productframe').contents().find("output[class=idClass]");
+	   var selected=false;
+	   
+	   for (var i = 0; i < selectedProduct.length; i++) 
+		if(selectedProduct[i].value=="m873LDFkDF%#DSd")
+			selected=true;
+		return selected;
+
+	}
+
+
+describe('Product page', function () {
+    it('At least on product is available', function(done){
+        zhain()
+            .do(loadProductFrame)
+            .waitUntil(atLeastOneProductIsLoaded)
+            .run(done);
+    });
+
+    it('Nokia Lumia1020 Blue Is Loaded', function(done){
+        zhain()
+            .do(loadProductFrame)
+            .waitUntil(nokiaLumia1020BlueIsLoaded)
+            .run(done);
+    });
+
+    it('Samsung Galaxy4 Is Loaded', function(done){
+        zhain()
+            .do(loadProductFrame)
+            .waitUntil(samsungGalaxy4IsLoaded)
+            .run(done);
+    });
+
+    it('Motorola MotoG IsIs Loaded', function(done){
+        zhain()
+            .do(loadProductFrame)
+            .waitUntil(motorolaMotoGIsIsLoaded)
+            .run(done);
+    });
+
+    it('Nokia Lumia1020 White Is Loaded', function(done){
+        zhain()
+            .do(loadProductFrame)
+            .waitUntil(nokiaLumia1020WhiteIsIsLoaded)
+            .run(done);
+    });
+});
+
+        mocha.checkLeaks();
+        mocha.run();
+
+</script>
+</body>
+</html>

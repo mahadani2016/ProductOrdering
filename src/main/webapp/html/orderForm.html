@@ -1,0 +1,111 @@
+<div id="orderDiv">
+	<form id="orderForm">
+		<div id="welcome"
+			style="text-align: left; background-color: #005387; height: 300">
+			<h4 style="color: #E0f2f7">You have selected the following
+				products.</h4>
+			<h4 style="color: #E0f2f7">Please enter your billing details for
+				submitting your order.</h4>
+		</div>
+		<br> <br> <br>
+		<div class="container" id="orderList"
+			style="background-color: rgba(86, 61, 124, .15); margin-left: 42px">
+			<table class="container" id="products"
+				style="color: black; width: 900px;">
+				<tr>
+					<th><b>Product Id</b></th>
+					<th><b>product Name</b></th>
+					<th><b>Quantity</b></th>
+				</tr>
+			</table>
+		</div>
+
+		<br> <br>
+
+		<div class="container" id="orderList">
+			<div class="col-md-10">
+				<h5 style="font-style: italic;">Please enter your billing
+					details.</h5>
+			</div>
+
+			<div class="col-md-10">
+				<table style="font-style: italic;">
+					<tr>
+						<td>Company Name:</td>
+						<td><input type="text" name="companyName"
+							class="cust_details" maxlength="50"></td>
+					</tr>
+					<tr>
+						<td>Street:</td>
+						<td><input type="text" name="street" class="cust_details"
+							maxlength="50"></td>
+					</tr>
+					<tr>
+						<td>Postal Code:</td>
+						<td><input type="text" name="postalCode" class="cust_details"
+							maxlength="5"></td>
+					</tr>
+					<tr>
+						<td>City:</td>
+						<td><input type="text" name="city" class="cust_details"
+							maxlength="50"></td>
+					</tr>
+					<tr>
+						<td>Country:</td>
+						<td><input type="text" name="country" class="cust_details"
+							maxlength="50"></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<br> <br>
+	</form>
+	<div style="text-align: center;" id="submitDiv">
+		<input type="submit" value="Submit Order"
+			onclick="return validateOrder();">
+	</div>
+</div>
+
+<div id="successDiv" style="display: none;">
+	<div id="welcome"
+		style="text-align: center; background-color: #005387; padding-top: 200px;"
+		class="container">
+		<h1 style="color: #FFFFFF">Thank you for placing your order with
+			us.</h1>
+	</div>
+	<div style="text-align: center; background-color: #005387"
+		class="container">
+		<h2 id="orderId" style="color: #FFFFFF"></h2>
+	</div>
+</div>
+
+<div id="errorDiv"
+	style="text-align: center; background-color: #005387; padding-top: 200px; display: none;"
+	class="container">
+	<h1 style="color: #FFFFFF">Server is down.Please try again later.</h1>
+</div>
+
+<div id="invalidOrderDiv"
+	style="text-align: center; background-color: #005387; padding-top: 200px; display: none;"
+	class="container">
+	<h1 style="color: #FFFFFF">Oops! Something went wrong.</h1>
+	<h3 style="color: #FFFFFF">We apologize for the inconvenience.
+		Please try again later.</h3>
+	<div style="text-align: center;" id="homePageDiv">
+		<input type="submit" value="GO TO HOME PAGE"
+			onclick="window.location='/'">
+	</div>
+</div>
+
+<div id="customDiv" style="display: none; text-align: center;">
+	<div style="text-align: center; background-color: #005387"
+		class="container">
+		<h2 id="errorMsg" style="color: #FFFFFF"></h2>
+	</div>
+	<div style="text-align: center; background-color: #005387;"
+		class="container">
+		<h3 style="color: #FFFFFF">We apologize for the inconvenience.
+			Please try again later.</h3>
+	</div>
+</div>
+

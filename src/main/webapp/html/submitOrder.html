@@ -1,0 +1,244 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Shops</title>
+<script src="../lib/jquery.js" type="application/javascript"></script>
+<script src="../lib/bacon.js" type="application/javascript"></script>
+<script src="../lib/bacon.model.js" type="application/javascript"></script>
+<script src="../lib/bacon.jquery.js" type="application/javascript"></script>
+<script
+	src="//builds.handlebarsjs.com.s3.amazonaws.com/handlebars-v2.0.0.js"
+	type="application/javascript"></script>
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap.min.css">
+
+
+<style>
+h1 {
+	margin-top: 25px;
+}
+
+h2 {
+	margin-left: 25px;
+	margin-top: 25px;
+	margin: 25px;
+}
+
+[class*="col-"] {
+	padding-top: 15px;
+	padding-bottom: 15px;
+	background-color: #eee;
+	background-color: rgba(86, 61, 124, .15);
+	border: 1px solid rgba(86, 61, 124, .2);
+}
+
+#welcome {
+	padding-left: 20px;
+	padding-right: 20px;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+</style>
+
+<script>
+	$(document).ready(function() {
+		$.ajax({
+			url : 'orderForm.html',
+			success : function(data) {
+				$("#orderBody").html(data);
+				loadOrder();
+			}
+		});
+	});
+
+	function loadOrder() {
+		var productList = getProductList();
+		var productIdArray = getProductIds();
+		var productNamesArray = getProductNames(productList, productIdArray);
+
+		if (productIdArray.length == productNamesArray.length)
+			addSelectedProducts(productIdArray, productNamesArray);
+		else
+			invalidOrder();
+	}
+
+	function addSelectedProducts(productIdArray, productNamesArray) {
+		for (i = 0; i < productIdArray.length; i++)
+			$('#products>tbody>tr')
+					.eq(0)
+					.after(
+							"<tr><td>"
+									+ productIdArray[i]
+									+ "</td><td>"
+									+ productNamesArray[i]
+									+ "</td><td><input type=text name=quantity value=1 maxlength='3' onkeypress='return isNumberKey(event)'></td></tr>");
+
+	}
+
+	function invalidOrder() {
+		$('#orderDiv').hide();
+		$('body').css({
+			"background-color" : "#005387"
+		})
+		$('#invalidOrderDiv').show();
+	}
+
+	function getProductList() {
+		var prodList = "";
+		$.ajax({
+			type : "get",
+			url : "/api/products",
+			contentType : "application/json; charset=utf-8",
+			datatype : "json",
+			async : false,
+			success : function(response) {
+				prodList = response;
+
+			},
+			error : function(response) {
+
+			}
+		});
+		return prodList;
+	}
+
+	function getProductIds() {
+		var productIDs;
+		var URL = window.location.href.replace(/%20/g, " ");
+		var parts = URL.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m, key,
+				value) {
+			if (key == "productIds")
+				productIDs = value;
+		});
+		return productIDs.split(',');
+	}
+
+	function getProductNames(productList, productIdArray) {
+		var productNamesArray = [];
+		for (var i = 0; i < productIdArray.length; i++)
+			productList.forEach(function(prodObj) {
+				if (prodObj.id == productIdArray[i])
+					productNamesArray.push(prodObj.name);
+			})
+		return productNamesArray;
+
+	}
+
+	function validateOrder() {
+		var customerJson = getCustomer();
+		var orderLineJson = getOrderLine();
+		var order = new Object();
+		order.customer = customerJson;
+		order.orderLines = orderLineJson;
+		var isDataValidated = validateForm();
+		if (isDataValidated)
+			submitOrder(order);
+	}
+
+	function validateForm() {
+		var validated = true;
+		$('input[type=text]').each(
+				function() {
+					if ($(this).val() == "" || $(this).val() == 0) {
+						alert("Order can not be submited.Please enter "
+								+ $(this).attr('name') + ".");
+						$(this).focus();
+						validated = false;
+						return false;
+					}
+				})
+		return validated;
+	}
+
+	function submitOrder(orderJson) {
+		$.ajax({
+			url : '/api/submit',
+			type : 'POST',
+			data : JSON.stringify(orderJson),
+			dataType : 'json',
+			contentType : "application/json; charset=UTF-8",
+			success : function(data) {
+				showSuccess(data);
+				//alert("Order submitted successfully :Order Id:" + data+data.statusText);
+			},
+			error : function(data) {
+				showCustomError(data.statusText);
+			}
+		});
+
+	}
+
+	function showSuccess(response) {
+		$('#orderDiv').hide();
+		$("body").css({
+			"background-color" : "#005387"
+		});
+		$("#successDiv").show();
+		$("#orderId").text("Your order ID is " + response + ".");
+	}
+
+	function showCustomError(response) {
+		$('#orderDiv').hide();
+		$("body").css({
+			"background-color" : "#005387"
+		});
+		$("#customDiv").show();
+		$("#errorMsg").text(response);
+	}
+
+	function showError() {
+
+		$('#orderDiv').hide();
+		$("body").css({
+			"background-color" : "#005387"
+		});
+		$("#errorDiv").show();
+	}
+
+	function getCustomer() {
+		var customer = {};
+
+		$("input.cust_details").each(function() {
+			customer[$(this).attr('name')] = $(this).val();
+		})
+		return customer;
+	}
+
+	function getOrderLine() {
+		var OrderLineArray = [];
+		var orderLine = new Object();
+
+		$("#products>tbody>tr").each(function() {
+			var i = 0;
+			OrderLineArray = []
+			$("#products>tbody>tr>td").each(function() {
+				var j = i % 3;
+				i++;
+				if (j == 0)
+					orderLine.productId = $(this).text();
+				if (j == 1)
+					orderLine.productName = $(this).text();
+				if (j == 2) {
+					orderLine.quantity = $(this).find('input').val();
+					OrderLineArray.push(orderLine);
+					orderLine = new Object();
+				}
+			})
+
+		});
+		return OrderLineArray;
+	}
+	
+	function isNumberKey(evt) {
+		var charCode=(evt.which) ? evt.which : event.keyCode;
+		if(charCode > 31 && (charCode < 48 || charCode > 57))
+			return false;
+		return true;
+		
+	}
+</script>
+</head>
+<body id="orderBody">
+</body>
+</html>

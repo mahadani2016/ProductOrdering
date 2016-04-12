@@ -1,0 +1,171 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Shops</title>
+<script src="../lib/jquery.js" type="application/javascript"></script>
+<script src="../lib/bacon.js" type="application/javascript"></script>
+<script src="../lib/bacon.model.js" type="application/javascript"></script>
+<script src="../lib/bacon.jquery.js" type="application/javascript"></script>
+<script
+	src="//builds.handlebarsjs.com.s3.amazonaws.com/handlebars-v2.0.0.js"
+	type="application/javascript"></script>
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap.min.css">
+
+</head>
+<style>
+.item {
+	padding-left: 20px;
+	padding-right: 20px;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+.popup_desc {
+	display: none;
+	position: absolute;
+	width: 180px;
+	height: 90px;
+	margin-left: 55px;
+	margin-top: 380px;
+	border: 2px solid; #336699;
+	padding: 0px;
+	z-index: 102;
+	font-family: Verdana;
+	font-size: 10pt;
+	left: 50%;
+}
+</style>
+
+<script>
+	$(document).ready(
+			function() {
+				var productPrices;
+				$.ajax({
+					type : "get",
+					url : "/api/prices",
+					contentType : "application/json; charset=utf-8",
+					datatype : "json",
+					success : function(response) {
+						productPrices = response;
+						var result = Bacon.$.ajax("/api/products");
+						result.onValue(displayProducts);
+					},
+					error : function(response) {
+						$("#mainDiv").hide();
+						$("body").css({
+							"background-color" : "#005387"
+						});
+						$("#errorDiv").show();
+					}
+				});
+
+				function displayProducts(products) {
+					var tempProdId = 0;
+					products.forEach(function(product) {
+						var oneTimePrice = 0;
+						var recurringPrice = 0;
+						var recurringCount = 0;
+
+						productPrices.forEach(function(priceObj) {
+							if (priceObj.id == product.priceId) {
+								oneTimePrice = priceObj.oneTimePrice;
+								recurringPrice = priceObj.recurringPrice;
+								recurringCount = priceObj.recurringCount;
+							}
+						})
+						var imageName = product.name.replace(/ /g, '');
+						addProducts(product, oneTimePrice, recurringPrice,
+								recurringCount, imageName, tempProdId);
+						tempProdId++;
+					})
+				}
+
+			});
+
+	function addProducts(product, oneTimePrice, recurringPrice, recurringCount,
+			imageName, prodId) {
+		$(
+				"<div id=prod"+prodId+" class=item style=float:left><table style=width:100%><tr><td	height=40 valign=top>"
+						+ product.name
+						+ "<output id=prod"+prodId+"Id class=idClass style='display:none'>"
+						+ product.id
+						+ "</output><output id=prod"+prodId+"Desc style='display:none'>"
+						+ product.description
+						+ "</output></td><td valign=top style=padding-left:5px;><input type=checkbox class=selectProduct id=prod"+prodId+"></td></tr><tr><td><img src=../image/"+imageName+".jpg alt='image not available' style=width:150px;height:220px></td></tr><tr><td><h5 class=oneTimeprice>One Time Price:"
+						+ oneTimePrice
+						+ "</h5><h5 class=recPrice>Recurring Price:"
+						+ recurringPrice
+						+ "</h5><h5 class=recCount>Recurring Count:"
+						+ recurringCount
+						+ "</h5><h5><a id=prod"
+						+ prodId
+						+ " onmouseover=showDescription(this); onmouseout='HideDescription();'>Desciption</a></h5></td></tr></table></div>")
+				.appendTo($("#productBox"));
+	}
+
+	function buyNow() {
+		var selectedProduct = document.getElementsByClassName('selectProduct');
+		var selectedProdIds = [];
+		var selected = false;
+
+		for (var i = 0; i < selectedProduct.length; i++) {
+			if (selectedProduct[i].checked) {
+				selected = true;
+				selectedProdIds.push($("#" + selectedProduct[i].id + "Id")
+						.val())
+			}
+		}
+		if (selected)
+			window.location = "/html/submitOrder.html?productIds="
+					+ selectedProdIds.toString();
+		else
+			alert("Please select atleast one product.");
+	}
+
+	function showDescription(obj) {
+		$("#descText").text($("#" + obj.id + "Desc").val());
+		$('#descPopup').css($("#" + obj.id).offset())
+		$("#descPopup").show();
+
+	}
+
+	function HideDescription() {
+		$("#descPopup").hide();
+
+	}
+</script>
+<body>
+	<div id="mainDiv">
+		<form>
+			<div id="welcome"
+				style="text-align: center; background-color: #005387"
+				class="container">
+				<h1 style="color: #FFFFFF">Online Mobile Store</h1>
+			</div>
+			<div id="productBox"
+				style="text-align: center; background-color: #eee" class="container"></div>
+			<br> <br> <br>
+		</form>
+		<div style="text-align: center;">
+			<input type="button" value="BUY NOW" onclick="return buyNow();">
+		</div>
+		<br> <br> <br>
+		<div id="descPopup" class="popup_desc"
+			style="background-color: #427ea3; border-color: #005387">
+			<table>
+				<tr style="color: #FFFFFF">
+					<td id="descText"></td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<div id="errorDiv"
+		style="text-align: center; background-color: #005387; padding-top: 200px; display: none;"
+		class="container;">
+		<H1 style="color: #FFFFFF">Server is down. Please try again
+			later.</H1>
+	</div>
+</body>
+</html>
